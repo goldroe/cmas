@@ -763,7 +763,9 @@ enum Typespec_Kind {
     TYPESPEC_NONE,
 
     TYPESPEC_IDENT,
+    
     TYPESPEC_ARRAY,
+    TYPESPEC_PTR,
     
     TYPESPEC_STRUCT,
     TYPESPEC_ENUM,
@@ -773,6 +775,8 @@ enum Typespec_Kind {
 struct Typespec {
     Typespec_Kind kind;
     char *name;
+
+    Typespec *sub;
 };
 
 struct Param {
@@ -790,6 +794,46 @@ struct Enum_Field {
     char *ident;
     int64_t val;
 };
+
+typedef enum Stmt_Kind Stmt_Kind;    
+typedef struct Stmt Stmt;
+typedef struct Stmt_Block Stmt_Block;
+
+enum Stmt_Kind {
+    STMT_NONE,
+
+    STMT_ASSIGN,
+    STMT_EXPR,
+    
+    STMT_IF,
+    STMT_DO,
+    STMT_WHILE,
+    STMT_SWITCH,
+    
+    STMT_BLOCK,
+};
+
+
+
+struct Stmt {
+    Stmt_Kind kind;
+
+    union {
+        Expr *expr;
+        
+        struct {
+            Expr *left;
+            Expr *right;
+        } assign;
+    };
+};
+
+struct Stmt_Block {
+    Stmt **statements;
+};
+
+Stmt_Block *parse_stmt_block();
+
 
 typedef struct Decl Decl;
 typedef enum Decl_Kind Decl_Kind;
@@ -810,11 +854,12 @@ struct Decl {
         struct {
             Typespec *type;
             char *ident;
-        } var_decl;
+        } var;
         struct {
             Param **params;
             Typespec **return_types;
-        } proc_decl;
+            Stmt_Block *block;
+        } proc;
         struct {
             Aggregate_Field **fields;
         } struct_decl;
@@ -824,33 +869,75 @@ struct Decl {
     };
 };
 
-// main :: proc(x :int, f :float) -> int {
+// main :: proc(x : **[2]int, f :float) -> int {
     
 // }
+
+Typespec *typespec_init(Typespec_Kind kind) {
+    Typespec *type = calloc(1, sizeof(Typespec));
+    type->kind = kind;
+    return type;
+}
+
+Typespec *parse_type() {
+    Typespec *type = NULL;
+    if (match_token(TOKEN_MULT)) {
+        type = typespec_init(TYPESPEC_PTR);
+        while (match_token(TOKEN_MULT)) {
+            Typespec *t = typespec_init(TYPESPEC_PTR);
+            t->sub = type;
+            type = t;
+        }
+        while (match_token(TOKEN_LBRACKET)) {
+            // Expr *expr = parse_expr();
+            expect_token(TOKEN_RBRACKET);
+            Typespec *t = typespec_init(TYPESPEC_ARRAY);
+            t->sub = type;
+            type = t;
+        }
+    } else if (match_token(TOKEN_LBRACKET)) {
+        // Expr *expr = parse_expr();
+        expect_token(TOKEN_RBRACKET);
+        type = typespec_init(TYPESPEC_ARRAY);
+        while (match_token(TOKEN_LBRACKET)) {
+            // Expr *expr = parse_expr();
+            expect_token(TOKEN_RBRACKET);
+            Typespec *t = typespec_init(TYPESPEC_ARRAY);
+            t->sub = type;
+            type = t;
+        }
+        while (match_token(TOKEN_MULT)) {
+            Typespec *t = typespec_init(TYPESPEC_PTR);
+            t->sub = type;
+            type = t;
+        }
+    }
+
+    char *ident = token.ident_val;
+    expect_token(TOKEN_IDENT);
+    Typespec *t = typespec_init(TYPESPEC_IDENT);
+    t->name = ident;
+    t->sub = type;
+    type = t;
+    return type;
+}
 
 Param **parse_param_list() {
     Param **params = NULL;
 
     for (;;) {
-        char *ident = token.ident_val;
+        Param *p = malloc(sizeof(Param));
+        p->ident = token.ident_val;
         expect_token(TOKEN_IDENT);
 
         expect_token(TOKEN_COLON);
         
-        Typespec *type = malloc(sizeof(Typespec));
-        ident = token.ident_val;
-        expect_token(TOKEN_IDENT); // TODO: add type parsing
-        type->name = ident;
-        type->kind = TYPESPEC_IDENT;
+        Typespec *type = parse_type();
         
-        Param *p = malloc(sizeof(Param));
         p->type = type;
-        p->ident = ident;
         buf_push(params, p);
         
-        if (is_token(TOKEN_COMMA)) {
-            next_token();
-        } else {
+        if (!match_token(TOKEN_COMMA)) {
             break;
         }
     }
@@ -860,21 +947,21 @@ Param **parse_param_list() {
 Typespec **parse_type_list() {
     Typespec **types = NULL;
     for (;;) {
-        Typespec *t = malloc(sizeof(Typespec));
-        char *ident = token.ident_val;
-        next_token();
+        Typespec *t = parse_type();
         expect_token(TOKEN_COMMA);
-        t->kind = TYPESPEC_IDENT; // none for now
-        t->name = token.ident_val;
         buf_push(types, t);
 
-        if (is_token(TOKEN_COMMA)) {
-            next_token();
-        } else {
+        if (!match_token(TOKEN_COMMA)) {
             break;
         }
     }
     return types;
+}
+
+Decl *decl_init(Decl_Kind kind) {
+    Decl *decl = malloc(sizeof(Decl));
+    decl->kind = kind;
+    return decl;
 }
 
 Decl *parse_decl() {
@@ -885,7 +972,9 @@ Decl *parse_decl() {
 
     if (match_token(TOKEN_COLON2)) {
         if (strcmp(token.ident_val, "struct") == 0) {
+            
         } else if (strcmp(token.ident_val, "enum") == 0) {
+            
         } else if (strcmp(token.ident_val, "proc") == 0) {
             // function header
             next_token();
@@ -895,13 +984,48 @@ Decl *parse_decl() {
             expect_token(TOKEN_ARROW);
             Typespec **ret_types = parse_type_list();
             // function body
-            
+            Stmt_Block *block = parse_stmt_block();
+            decl = decl_init(DECL_PROC);
+            decl->proc.params = params;
+            decl->proc.return_types = ret_types;
+            decl->proc.block = block;
         }
     }
 
     return decl;
 }
 
+Decl *parse_decl_stream(char *str) {
+    init_stream(str);
+    Decl *decl = parse_decl();
+    return decl;
+}
+
+Stmt *parse_stmt() {
+    Stmt *stmt = NULL;
+    return stmt;
+}
+
+Stmt_Block *parse_stmt_block() {
+    Stmt_Block *block = malloc(sizeof(Stmt_Block));
+    block->statements = NULL;
+    
+    expect_token(TOKEN_LBRACE);
+    while (!is_token(TOKEN_EOF)) {
+        if (is_token(TOKEN_RBRACE)) {
+            break;
+        }
+
+        Stmt *stmt = parse_stmt();
+        buf_push(block->statements, stmt);
+    }
+
+    expect_token(TOKEN_RBRACE);
+    
+    return block;
+}
+
 void main(int argc, char **argv) {
     Expr *expr = parse_expr_stream("10 + 20 * 5.0f - foo");
+    Decl *decl =  parse_decl_stream("foo :: proc(x :int, y :int) -> int, float");
 }
