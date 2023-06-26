@@ -1,76 +1,23 @@
-#include "common.h"
-#include "tok.h"
-#include "parse.h"
-
 #include <stdlib.h>
 #include <string.h>
 
-Expr *expr_init(int kind) {
-    Expr *expr = malloc(sizeof(Expr));
-    expr->kind = kind;
-    return expr;
-}
-
-Expr *expr_unary(Expr *expr, int op) {
-    Expr *result = expr_init(EXPR_UNARY);
-    result->unary.expr = expr;
-    result->unary.op = op;
-    return expr;
-}
-
-Expr *expr_binary(Expr *left, Expr *right, int op) {
-    Expr *result = expr_init(EXPR_BINARY);
-    result->binary.left = left;
-    result->binary.right = right;
-    result->binary.op = op;
-    return result;
-}
-
-Expr *expr_ternary(Expr *cond, Expr *left, Expr *right) {
-    Expr *result = expr_init(EXPR_TERNARY);
-    result->ternary.cond = cond;
-    result->ternary.left = left;
-    result->ternary.right = right;
-    return result;
-}
-
-Expr *expr_int(int64_t val) {
-    Expr *expr = expr_init(EXPR_INT);
-    expr->int_val = val;
-    return expr;
-}
-
-Expr *expr_float(double val) {
-    Expr *expr = expr_init(EXPR_FLOAT);
-    expr->float_val = val;
-    return expr;
-}
-
-
-Expr *expr_str(char *val) {
-    Expr *expr = expr_init(EXPR_STR);
-    expr->str_val = val;
-    return expr;
-}
-
-Expr *expr_ident(char *val) {
-    Expr *expr = expr_init(EXPR_IDENT);
-    expr->ident = val;
-    return expr;
-}
+#include "common.h"
+#include "tok.h"
+#include "parse.h"
+#include "ast.h"
 
 Expr *parse_expr_operand() {
     Expr *expr = NULL;
-    if (is_token(TOKEN_INT)) {
+    if (is_token(Token_Int)) {
         expr = expr_int(token.int_val);
-    } else if (is_token(TOKEN_FLOAT)) {
+    } else if (is_token(Token_Float)) {
         expr = expr_float(token.float_val);
-    } else if (is_token(TOKEN_STR)) {
+    } else if (is_token(Token_Str)) {
         expr = expr_str(token.str_val);
-    } else if (is_token(TOKEN_IDENT)) {
+    } else if (is_token(Token_Ident)) {
         expr = expr_ident(token.ident_val);
     } else {
-        return expr_init(EXPR_NONE);
+        return expr_init(Expr_None);
     }
     
     next_token();
@@ -79,9 +26,9 @@ Expr *parse_expr_operand() {
 
 Expr *parse_expr_base() {
     Expr *expr = parse_expr_operand();
-    if (match_token(TOKEN_LPAREN)) {
-        ASSERT(expr->kind == EXPR_IDENT);
-    } else if (match_token(TOKEN_LBRACKET)) {
+    if (match_token(Token_Lparen)) {
+        ASSERT(expr->kind == Expr_Ident);
+    } else if (match_token(Token_Lbracket)) {
         
     }
     return expr;
@@ -138,9 +85,9 @@ Expr *parse_expr_cmp() {
 
 Expr *parse_expr_and() {
     Expr *expr = parse_expr_cmp();
-    while (match_token(TOKEN_AND)) {
+    while (match_token(Token_And)) {
         Expr *right = parse_expr_cmp();
-        expr = expr_binary(expr, right, TOKEN_AND);
+        expr = expr_binary(expr, right, Token_And);
     }
     
     return expr;
@@ -148,9 +95,9 @@ Expr *parse_expr_and() {
 
 Expr *parse_expr_or() {
     Expr *expr = parse_expr_and();
-    while (match_token(TOKEN_OR)) {
+    while (match_token(Token_Or)) {
         Expr *right = parse_expr_and();
-        expr = expr_binary(expr, right, TOKEN_OR);
+        expr = expr_binary(expr, right, Token_Or);
     }
     
     return expr;
@@ -158,9 +105,9 @@ Expr *parse_expr_or() {
 
 Expr *parse_expr_ternary() {
     Expr *expr = parse_expr_or();
-    if (match_token(TOKEN_QUESTION)) {
+    if (match_token(Token_Question)) {
         Expr *left = parse_expr_ternary();
-        expect_token(TOKEN_COLON);
+        expect_token(Token_Colon);
         Expr *right = parse_expr_ternary();
         expr = expr_ternary(expr, left, right);
     }
@@ -179,127 +126,114 @@ Expr *parse_expr_stream(char *str) {
     return expr;
 }
 
-Typespec *typespec_init(Typespec_Kind kind) {
-    Typespec *type = calloc(1, sizeof(Typespec));
-    type->kind = kind;
-    return type;
-}
-
 Typespec *parse_type() {
     Typespec *type = NULL;
-    if (match_token(TOKEN_MULT)) {
-        type = typespec_init(TYPESPEC_PTR);
-        while (match_token(TOKEN_MULT)) {
-            Typespec *t = typespec_init(TYPESPEC_PTR);
-            t->sub = type;
-            type = t;
-        }
-        while (match_token(TOKEN_LBRACKET)) {
-            // Expr *expr = parse_expr();
-            expect_token(TOKEN_RBRACKET);
-            Typespec *t = typespec_init(TYPESPEC_ARRAY);
-            t->sub = type;
-            type = t;
-        }
-    } else if (match_token(TOKEN_LBRACKET)) {
-        // Expr *expr = parse_expr();
-        expect_token(TOKEN_RBRACKET);
-        type = typespec_init(TYPESPEC_ARRAY);
-        while (match_token(TOKEN_LBRACKET)) {
-            // Expr *expr = parse_expr();
-            expect_token(TOKEN_RBRACKET);
-            Typespec *t = typespec_init(TYPESPEC_ARRAY);
-            t->sub = type;
-            type = t;
-        }
-        while (match_token(TOKEN_MULT)) {
-            Typespec *t = typespec_init(TYPESPEC_PTR);
+
+    if (match_token(Token_Mult)) {
+        type = typespec_init(Typespec_Ptr);
+        while (match_token(Token_Mult)) {
+            Typespec *t = typespec_init(Typespec_Ptr);
             t->sub = type;
             type = t;
         }
     }
 
+    if (is_token(Token_Lbracket)) {
+        if (type == NULL) {
+            type = typespec_init(Typespec_Array);
+        }
+        
+        while (match_token(Token_Lbracket)) {
+            Expr *expr = parse_expr();
+            expect_token(Token_Rbracket);
+            Typespec *t = typespec_init(Typespec_Array);
+            t->sub = type;
+            type = t;
+        }
+    }
+
+    // TODO: int, float, keyword parsing
     char *ident = token.ident_val;
-    expect_token(TOKEN_IDENT);
-    Typespec *t = typespec_init(TYPESPEC_IDENT);
+    expect_token(Token_Ident);
+    Typespec *t = typespec_init(Typespec_Ident);
     t->name = ident;
     t->sub = type;
     type = t;
     return type;
 }
 
+Param *param_init(char *ident, Typespec *type) {
+    Param *param = malloc(sizeof(Param));
+    param->ident = ident;
+    param->type = type;
+    return param;
+}
+
+Param *parse_param() {
+    Param *p = NULL;
+    if (is_token(Token_Ident)) {
+        char *ident = token.ident_val;
+        next_token();
+        expect_token(Token_Colon);
+        Typespec *type = parse_type();
+        p = param_init(ident, type);
+    } else {
+        syntax_error("Expected identifier\n");
+    }
+
+    return p;
+}
+
 Param **parse_param_list() {
     Param **params = NULL;
-
-    for (;;) {
-        Param *p = malloc(sizeof(Param));
-        p->ident = token.ident_val;
-        expect_token(TOKEN_IDENT);
-
-        expect_token(TOKEN_COLON);
-        
-        Typespec *type = parse_type();
-        
-        p->type = type;
+    
+    Param *p = parse_param();
+    buf_push(params, p);
+    
+    while (match_token(Token_Comma)) {
+        p = parse_param();
         buf_push(params, p);
-        
-        if (!match_token(TOKEN_COMMA)) {
-            break;
-        }
     }
     return params;
 }
 
 Typespec **parse_type_list() {
     Typespec **types = NULL;
-    for (;;) {
-        Typespec *t = parse_type();
-        expect_token(TOKEN_COMMA);
-        buf_push(types, t);
+    Typespec *t = parse_type();
+    buf_push(types, t);
 
-        if (!match_token(TOKEN_COMMA)) {
-            break;
-        }
+    while (match_token(Token_Comma)) {
+        t = parse_type();
+        buf_push(types, t);
     }
     return types;
 }
 
-Decl *decl_init(Decl_Kind kind) {
-    Decl *decl = malloc(sizeof(Decl));
-    decl->kind = kind;
-    return decl;
-}
-
 Decl *parse_decl() {
     Decl *decl = NULL;
-    float f = .0;
 
-    expect_token(TOKEN_IDENT);
+    expect_token(Token_Ident);
     char *ident = token.ident_val;
     next_token();
 
-    if (match_token(TOKEN_COLON2)) {
-        if (strcmp(token.ident_val, "struct") == 0) {
-            
-        } else if (strcmp(token.ident_val, "enum") == 0) {
-            
-        } else if (strcmp(token.ident_val, "proc") == 0) {
-            // function header
+    if (match_token(Token_Colon2)) {
+        if (strcmp(token.ident_val, "proc") == 0) {
             next_token();
-            expect_token(TOKEN_LPAREN);
+            expect_token(Token_Lparen);
             Param **params = parse_param_list();
-            expect_token(TOKEN_RPAREN);
-            expect_token(TOKEN_ARROW);
+            expect_token(Token_Rparen);
+            expect_token(Token_Arrow);
             Typespec **ret_types = parse_type_list();
-            // function body
-            Stmt_Block *block = parse_stmt_block();
-            decl = decl_init(DECL_PROC);
-            decl->proc.params = params;
-            decl->proc.return_types = ret_types;
-            decl->proc.block = block;
-        }
-    }
 
+            StmtBlock *block = parse_stmt_block();
+            decl = decl_proc(ident, params, ret_types, block);
+        }
+    } else if (match_token(Token_Colon)) {
+        Typespec *t = parse_type();
+        expect_token(Token_Semi);
+        decl = decl_var(ident, t);
+    }
+    
     return decl;
 }
 
@@ -309,18 +243,13 @@ Decl *parse_decl_stream(char *str) {
     return decl;
 }
 
-Stmt *parse_stmt() {
-    Stmt *stmt = NULL;
-    return stmt;
-}
-
-Stmt_Block *parse_stmt_block() {
-    Stmt_Block *block = malloc(sizeof(Stmt_Block));
+StmtBlock *parse_stmt_block() {
+    StmtBlock *block = malloc(sizeof(StmtBlock));
     block->statements = NULL;
     
-    expect_token(TOKEN_LBRACE);
-    while (!is_token(TOKEN_EOF)) {
-        if (is_token(TOKEN_RBRACE)) {
+    expect_token(Token_Lbrace);
+    while (!is_token(Token_EOF)) {
+        if (is_token(Token_Rbrace)) {
             break;
         }
 
@@ -328,8 +257,12 @@ Stmt_Block *parse_stmt_block() {
         buf_push(block->statements, stmt);
     }
 
-    expect_token(TOKEN_RBRACE);
+    expect_token(Token_Rbrace);
     
     return block;
 }
 
+Stmt *parse_stmt() {
+    Stmt *stmt = NULL;
+    return stmt;
+}

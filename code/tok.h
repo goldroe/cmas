@@ -4,70 +4,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-enum Token_Kind {
-    TOKEN_EOF,
-
-    TOKEN_IDENT = 128,
-    TOKEN_INT,
-    TOKEN_FLOAT,
-    TOKEN_STR,
-
-    TOKEN_EQ,
-    TOKEN_NEQ,
-    TOKEN_LT,
-    TOKEN_GT,
-    TOKEN_LTEQ,
-    TOKEN_GTEQ,
-    
-    TOKEN_LPAREN,
-    TOKEN_RPAREN,
-    TOKEN_LBRACE,
-    TOKEN_RBRACE,
-    TOKEN_LBRACKET,
-    TOKEN_RBRACKET,
-
-    TOKEN_LSHIFT,
-    TOKEN_RSHIFT,
-    TOKEN_PLUS,
-    TOKEN_MINUS,
-    TOKEN_DIV,
-    TOKEN_MULT,
-    TOKEN_MOD,
-
-    TOKEN_INC,
-    TOKEN_DEC,
-    
-    TOKEN_BANG,
-    TOKEN_AMPER,
-    TOKEN_AND,
-    TOKEN_BAR,
-    TOKEN_OR,
-    TOKEN_XOR,
-    
-    TOKEN_ASSIGN,
-    TOKEN_AUTO_ASSIGN,
-    TOKEN_PLUS_ASSIGN,
-    TOKEN_MINUS_ASSIGN,
-    TOKEN_MULT_ASSIGN,
-    TOKEN_DIV_ASSIGN,
-    TOKEN_LSHIFT_ASSIGN,
-    TOKEN_RSHIFT_ASSIGN,
-    TOKEN_MOD_ASSIGN,
-    TOKEN_AND_ASSIGN,
-    TOKEN_OR_ASSIGN,
-    TOKEN_XOR_ASSIGN,
-
-    TOKEN_SEMI,
-    TOKEN_COLON,
-    TOKEN_COLON2,
-    TOKEN_DOT,
-    TOKEN_COMMA,
-    TOKEN_ELLIPSIS,
-    TOKEN_ARROW,
-    TOKEN_HASH,
-    TOKEN_QUESTION,
-};
-
 typedef struct {
     int kind;
 
@@ -79,23 +15,87 @@ typedef struct {
     };
 } Token;
 
-extern char *stream;
 extern Token token;
+extern char *stream;
+
+enum TokenKind {
+    Token_EOF,
+
+    Token_Ident = 128,
+    Token_Int,
+    Token_Float,
+    Token_Str,
+
+    Token_Eq,
+    Token_Neq,
+    Token_Lt,
+    Token_Gt,
+    Token_Lteq,
+    Token_Gteq,
+    
+    Token_Lparen,
+    Token_Rparen,
+    Token_Lbrace,
+    Token_Rbrace,
+    Token_Lbracket,
+    Token_Rbracket,
+
+    Token_Lshift,
+    Token_Rshift,
+    Token_Plus,
+    Token_Minus,
+    Token_Div,
+    Token_Mult,
+    Token_Mod,
+
+    Token_Inc,
+    Token_Dec,
+    
+    Token_Bang,
+    Token_Amper,
+    Token_And,
+    Token_Bar,
+    Token_Or,
+    Token_Xor,
+    
+    Token_Assign,
+    Token_AutoAssign,
+    Token_PlusAssign,
+    Token_MinusAssign,
+    Token_MultAssign,
+    Token_DivAssign,
+    Token_LshiftAssign,
+    Token_RshiftAssign,
+    Token_ModAssign,
+    Token_AndAssign,
+    Token_OrAssign,
+    Token_XorAssign,
+
+    Token_Semi,
+    Token_Colon,
+    Token_Colon2,
+    Token_Dot,
+    Token_Comma,
+    Token_Ellipsis,
+    Token_Arrow,
+    Token_Hash,
+    Token_Question,
+};
 
 inline bool is_cmp_op(int kind) {
-    return (kind == TOKEN_EQ || kind == TOKEN_NEQ || kind == TOKEN_LT || kind == TOKEN_GT || kind == TOKEN_LTEQ || kind == TOKEN_GTEQ);
+    return (kind == Token_Eq || kind == Token_Neq || kind == Token_Lt || kind == Token_Gt || kind == Token_Lteq || kind == Token_Gteq);
 }
 
 inline bool is_add_op(int kind) {
-    return (kind == TOKEN_PLUS || kind == TOKEN_MINUS || kind == TOKEN_XOR || kind == TOKEN_BAR);
+    return (kind == Token_Plus || kind == Token_Minus || kind == Token_Xor || kind == Token_Bar);
 }
 
 inline bool is_mul_op(int kind) {
-    return (kind == TOKEN_MULT || kind == TOKEN_DIV || kind == TOKEN_MOD || kind == TOKEN_AMPER || kind == TOKEN_LSHIFT || kind == TOKEN_RSHIFT);
+    return (kind == Token_Mult || kind == Token_Div || kind == Token_Mod || kind == Token_Amper || kind == Token_Lshift || kind == Token_Rshift);
 }
 
 inline bool is_unary_op(int op) {
-    return (op == TOKEN_PLUS || op == TOKEN_MINUS || op == TOKEN_AMPER || op == TOKEN_MULT);
+    return (op == Token_Plus || op == Token_Minus || op == Token_Amper || op == Token_Mult);
 }
 
 void init_stream(char *s);

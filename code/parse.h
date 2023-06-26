@@ -2,26 +2,15 @@
 #define PARSE_H
 
 #include <stdint.h>
-enum Expr_Kind {
-    EXPR_NONE,
-
-    EXPR_INT,
-    EXPR_FLOAT,
-    EXPR_STR,
-    EXPR_IDENT,
-    
-    EXPR_CALL,
-    EXPR_INDEX,
-    EXPR_FIELD,
-    EXPR_COMPOUND,
-    EXPR_CAST,
-
-    EXPR_UNARY,
-    EXPR_BINARY,
-    EXPR_TERNARY,
-};
 
 typedef struct Expr Expr;
+typedef struct Typespec Typespec;
+typedef enum TypespecKind TypespecKind;
+typedef struct Param Param;
+typedef struct AggregateField AggregateField;
+typedef struct EnumField EnumField;
+typedef struct Stmt Stmt;
+typedef struct StmtBlock StmtBlock;
 
 struct Expr {
     int kind;
@@ -56,68 +45,77 @@ struct Expr {
     };
 };
 
-typedef struct Typespec Typespec;
-typedef enum Typespec_Kind Typespec_Kind;
-typedef struct Param Param;
-typedef struct Aggregate_Field Aggregate_Field;
-typedef struct Enum_Field Enum_Field;
+enum ExprKind {
+    Expr_None,
+
+    Expr_Int,
+    Expr_Float,
+    Expr_Str,
+    Expr_Ident,
+    
+    Expr_Call,
+    Expr_Index,
+    Expr_Field,
+    Expr_Compound,
+    Expr_Cast,
+
+    Expr_Unary,
+    Expr_Binary,
+    Expr_Ternary,
+};
 
 enum Typespec_Kind {
-    TYPESPEC_NONE,
+    Typespec_None,
 
-    TYPESPEC_IDENT,
+    Typespec_Ident,
     
-    TYPESPEC_ARRAY,
-    TYPESPEC_PTR,
+    Typespec_Array,
+    Typespec_Ptr,
     
-    TYPESPEC_STRUCT,
-    TYPESPEC_ENUM,
-    TYPESPEC_PROC
+    Typespec_Struct,
+    Typespec_Enum,
+    Typespec_Proc
 };
 
 struct Typespec {
-    Typespec_Kind kind;
+    int kind;
     char *name;
 
+    Expr *expr;
     Typespec *sub;
 };
 
 struct Param {
-    Typespec *type;
     char *ident;
+    Typespec *type;
 };
 
-struct Aggregate_Field {
+struct AggregateField {
     Typespec *type;
     char *ident;
     // initializer?
 };
 
-struct Enum_Field {
+struct EnumField {
     char *ident;
     int64_t val;
 };
+enum StmtKind {
+    Stmt_None,
 
-typedef enum Stmt_Kind Stmt_Kind;    
-typedef struct Stmt Stmt;
-typedef struct Stmt_Block Stmt_Block;
-
-enum Stmt_Kind {
-    STMT_NONE,
-
-    STMT_ASSIGN,
-    STMT_EXPR,
+    Stmt_Assign,
+    Stmt_Expr,
     
-    STMT_IF,
-    STMT_DO,
-    STMT_WHILE,
-    STMT_SWITCH,
+    Stmt_If,
+    Stmt_Do,
+    Stmt_While,
+    Stmt_Switch,
     
-    STMT_BLOCK,
+    Stmt_Block,
 };
 
 struct Stmt {
-    Stmt_Kind kind;
+    int kind;
 
     union {
         Expr *expr;
@@ -129,44 +127,42 @@ struct Stmt {
     };
 };
 
-struct Stmt_Block {
+struct StmtBlock {
     Stmt **statements;
 };
 
 typedef struct Decl Decl;
-typedef enum Decl_Kind Decl_Kind;
 
 enum Decl_Kind {
-    DECL_NONE,
+    Decl_None,
 
-    DECL_VAR,
-    DECL_PROC,
-    DECL_STRUCT,
-    DECL_ENUM,
+    Decl_Var,
+    Decl_Proc,
+    Decl_Struct,
+    Decl_Enum,
 };
 
 struct Decl {
-    Decl_Kind kind;
+    int kind;
+    char *ident;
 
     union {
         struct {
             Typespec *type;
-            char *ident;
         } var;
         struct {
             Param **params;
             Typespec **return_types;
-            Stmt_Block *block;
+            StmtBlock *block;
         } proc;
         struct {
-            Aggregate_Field **fields;
+            AggregateField **fields;
         } struct_decl;
         struct {
-            Enum_Field **fields;
+            EnumField **fields;
         } enum_decl;
     };
 };
-
 
 Expr *parse_expr_stream(char *str);
 Expr *parse_expr();
@@ -174,6 +170,6 @@ Typespec *parse_type();
 Decl *parse_decl();
 Decl *parse_decl_stream(char *str);
 Stmt *parse_stmt();
-Stmt_Block *parse_stmt_block();
+StmtBlock *parse_stmt_block();
 
 #endif // PARSE_H

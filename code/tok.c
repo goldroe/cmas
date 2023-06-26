@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 
@@ -101,121 +102,121 @@ begin:
     char *start = stream;
     
     switch (*stream) {
-        TOK2('=', TOKEN_ASSIGN, '=', TOKEN_EQ);
+        TOK2('=', Token_Assign, '=', Token_Eq);
 
-        TOK1('(', TOKEN_LPAREN);
-        TOK1(')', TOKEN_RPAREN);
-        TOK1('[', TOKEN_LBRACKET);
-        TOK1(']', TOKEN_RBRACKET);
-        TOK1('{', TOKEN_LBRACE);
-        TOK1('}', TOKEN_RBRACE);
+        TOK1('(', Token_Lparen);
+        TOK1(')', Token_Rparen);
+        TOK1('[', Token_Lbracket);
+        TOK1(']', Token_Lbracket);
+        TOK1('{', Token_Lbrace);
+        TOK1('}', Token_Lbrace);
         
-        TOK1(';', TOKEN_SEMI);
-        TOK1(',', TOKEN_COMMA);
-        TOK1('?', TOKEN_QUESTION);
-        TOK1('#', TOKEN_HASH);
+        TOK1(';', Token_Semi);
+        TOK1(',', Token_Comma);
+        TOK1('?', Token_Question);
+        TOK1('#', Token_Hash);
         
-        TOK2('!', TOKEN_BANG, '=', TOKEN_NEQ);
-        TOK2('^', TOKEN_XOR,  '=', TOKEN_XOR_ASSIGN);
-        TOK2('*', TOKEN_MULT, '=', TOKEN_MULT_ASSIGN);
-        TOK2('%', TOKEN_MOD,  '=', TOKEN_MOD_ASSIGN);
-        TOK2('.', TOKEN_DOT,  '.', TOKEN_ELLIPSIS);
+        TOK2('!', Token_Bang, '=', Token_Neq);
+        TOK2('^', Token_Xor,  '=', Token_XorAssign);
+        TOK2('*', Token_Mult, '=', Token_MultAssign);
+        TOK2('%', Token_Mod,  '=', Token_ModAssign);
+        TOK2('.', Token_Dot,  '.', Token_Ellipsis);
 
     case ':': {
-        token.kind = TOKEN_COLON;
+        token.kind = Token_Colon;
         stream++;
         if (*stream == '=') {
-            token.kind = TOKEN_AUTO_ASSIGN;
+            token.kind = Token_AutoAssign;
             stream++;
         } else if (*stream == ':') {
-            token.kind = TOKEN_COLON2;
+            token.kind = Token_Colon2;
             stream++;
         }
     } break;
         
     case '<': {
-        token.kind = TOKEN_LT;
+        token.kind = Token_Lt;
         stream++;
         if (*stream == '<') {
             stream++;
             if (*stream == '=') {
-                token.kind = TOKEN_LSHIFT_ASSIGN;
+                token.kind = Token_LshiftAssign;
                 stream++;
             } else {
-                token.kind = TOKEN_LSHIFT;
+                token.kind = Token_Lshift;
             }
         } else if (*stream == '=') {
             stream++;
-            token.kind = TOKEN_LTEQ;
+            token.kind = Token_Lteq;
         }
     } break;
 
     case '>': {
-        token.kind = TOKEN_GT;
+        token.kind = Token_Gt;
         stream++;
         if (*stream == '>') {
             stream++;
             if (*stream == '=') {
-                token.kind = TOKEN_RSHIFT_ASSIGN;
+                token.kind = Token_RshiftAssign;
                 stream++;
             } else {
-                token.kind = TOKEN_RSHIFT;
+                token.kind = Token_Rshift;
             }
         } else if (*stream == '=') {
             stream++;
-            token.kind = TOKEN_GTEQ;
+            token.kind = Token_Gteq;
         }
     } break;
         
     case '-': {
-        token.kind = TOKEN_MINUS;
+        token.kind = Token_Minus;
         stream++;
         if (*stream == '>') {
             stream++;
-            token.kind = TOKEN_ARROW;
+            token.kind = Token_Arrow;
         } else if (*stream == '-') {
             stream++;
-            token.kind = TOKEN_DEC;
+            token.kind = Token_Dec;
         } else if (*stream == '=') {
             stream++;
-            token.kind = TOKEN_MINUS_ASSIGN;
+            token.kind = Token_MinusAssign;
         }
     } break;
 
     case '+': {
-        token.kind = TOKEN_PLUS;
+        token.kind = Token_Plus;
         stream++;
         if (*stream == '+') {
             stream++;
-            token.kind = TOKEN_INC;
+            token.kind = Token_Inc;
         } else if (*stream == '=') {
             stream++;
-            token.kind = TOKEN_PLUS_ASSIGN;
+            token.kind = Token_PlusAssign;
         }
     } break;
 
     case '|': {
-        token.kind = TOKEN_BAR;
+        token.kind = Token_Bar;
         stream++;
         if (*stream == '|') {
-            token.kind = TOKEN_OR;
+            token.kind = Token_Or;
             stream++;
         } else if (*stream == '=') {
-            token.kind = TOKEN_OR_ASSIGN;
+            token.kind = Token_OrAssign;
             stream++;
         }
         
     } break;
         
     case '&': {
-        token.kind = TOKEN_AMPER;
+        token.kind = Token_Amper;
         stream++;
         if (*stream == '&') {
             stream++;
-            token.kind = TOKEN_AND;
+            token.kind = Token_And;
         } else if (*stream == '=') {
             stream++;
-            token.kind = TOKEN_AND_ASSIGN;
+            token.kind = Token_AndAssign;
         }
     } break;
         
@@ -240,7 +241,7 @@ begin:
         }
         // TODO: expect terminating single quote
         stream++;
-        token.kind = TOKEN_INT;
+        token.kind = Token_Int;
         token.int_val = (int64_t)ch;
     } break;
 
@@ -265,16 +266,16 @@ begin:
             stream++;
         }
 
-        token.kind = TOKEN_STR;
+        token.kind = Token_Str;
         token.str_val = str_val;
     } break;
 
     case '/': {
-        token.kind = TOKEN_DIV;
+        token.kind = Token_Div;
         stream++;
 
         if (*stream == '=') {
-            token.kind = TOKEN_DIV_ASSIGN;
+            token.kind = Token_DivAssign;
             stream++;
         } else if (*stream == '/') {
             while (*stream) {
@@ -309,11 +310,11 @@ begin:
         }
         if (*stream == '.') {
             stream = start;
-            token.kind = TOKEN_FLOAT;
+            token.kind = Token_Float;
             token.float_val = parse_float();
         } else {
             stream = start;
-            token.kind = TOKEN_INT;
+            token.kind = Token_Int;
             token.int_val = parse_int();
         }
     } break;
@@ -325,7 +326,7 @@ begin:
             stream++;
         }
         buf_push(ident, '\0');
-        token.kind = TOKEN_IDENT;
+        token.kind = Token_Ident;
         token.ident_val = ident;
     } break;
 

@@ -1,9 +1,12 @@
 #ifndef LOG_H
 #define LOG_H
 
+#ifdef DEVELOPER
 #include <stdio.h>
-
-#define __LOG(CLR, FMT, ...) printf("\033[%sm" FMT "\033[m", CLR, ##__VA_ARGS__)
+#define __LOG(CLR, FMT, ...) printf("\033[%sm" FMT "\033[m\n", CLR, ##__VA_ARGS__)
+#else
+#define __LOG(CLR, FMT, ...)
+#endif
 
 #define __COLOR_RED "1;31"
 #define __COLOR_GREEN "0;32"
