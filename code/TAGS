@@ -1,325 +1,335 @@
 
-c:/Dev/cmas/code\ast.c,763
-Typespec *typespec_init(int kind) {typespec_init4,40
-Typespec *typespec_array(Expr *e) {typespec_array10,169
-Expr *expr_init(int kind) {expr_init16,297
-Expr *expr_unary(Expr *expr, int op) {expr_unary22,407
-Expr *expr_binary(Expr *left, Expr *right, int op) {expr_binary29,566
-Expr *expr_ternary(Expr *cond, Expr *left, Expr *right) {expr_ternary37,778
-Expr *expr_int(int64_t val) {expr_int45,1003
-Expr *expr_float(double val) {expr_float51,1116
-Expr *expr_str(char *val) {expr_str58,1235
-Expr *expr_ident(char *val) {expr_ident64,1346
-Decl *decl_init(int kind) {decl_init70,1459
-Decl *decl_proc(char *ident, Param **params, Typespec **types, StmtBlock *block) {decl_proc76,1569
-Decl *decl_var(char *ident, Typespec *t) {decl_var85,1835
+c:/Dev/cmas/code\cmas.cpp,167
+#define COLTERM_IMPLEMENTATIONCOLTERM_IMPLEMENTATION6,78
+void syntax_error(const char *fmt, ...) {syntax_error10,148
+int main(int argc, char **argv) {main25,420
 
-c:/Dev/cmas/code\ast.h,280
-#define AST_HAST_H2,14
-typedef struct Ast Ast;Ast4,29
-enum Ast_Kind {Ast_Kind6,54
-    Ast_None,Ast_None7,70
-    Ast_Proc,Ast_Proc9,85
-    Ast_Struct,Ast_Struct10,99
-    Ast_Ast_11,115
-    Ast_Assign,Ast_Assign12,124
-    Ast_Expr,Ast_Expr13,140
-} Ast;Ast18,180
+c:/Dev/cmas/code\colterm.h,543
+#define COLTERM_HCOLTERM_H2,19
+#define COLTERM_ANSICOLTERM_ANSI8,108
+void set_term_color(int color) {set_term_color17,283
+#define COLTERM_PRINTF(COLTERM_PRINTF33,776
+#define __ANSI_COLOR_RED __ANSI_COLOR_RED40,938
+#define __ANSI_COLOR_GREEN __ANSI_COLOR_GREEN41,971
+#define __ANSI_COLOR_BLUE __ANSI_COLOR_BLUE42,1006
+#define __ANSI_COLOR_CYAN __ANSI_COLOR_CYAN43,1040
+#define __ANSI_COLOR_YELLOW __ANSI_COLOR_YELLOW44,1074
+#define __ANSI_COLOR_WHITE __ANSI_COLOR_WHITE45,1110
+#define COLTERM_PRINTF(COLTERM_PRINTF47,1147
 
-c:/Dev/cmas/code\cmas.c,45
-void main(int argc, char **argv) {main5,57
-
-c:/Dev/cmas/code\common.c,72
-void *buf_grow(void *buf, size_t num, size_t elem_size) {buf_grow5,42
-
-c:/Dev/cmas/code\common.h,436
+c:/Dev/cmas/code\common.h,89
 #define COMMON_HCOMMON_H2,17
-    size_t len;len8,90
-    size_t len;__anon2::len8,90
-    size_t cap;cap9,106
-    size_t cap;__anon2::cap9,106
-    char buf[1];buf10,122
-    char buf[1];__anon2::buf10,122
-} BufHeader;BufHeader11,139
-#define _buf_header(_buf_header15,211
-#define _buf_len(_buf_len17,258
-#define _buf_cap(_buf_cap18,312
-#define _buf_maybe_grow(_buf_maybe_grow21,368
-#define buf_push(buf_push22,486
+#define ASSERT(ASSERT7,72
+#define ASSERT(ASSERT13,177
 
-c:/Dev/cmas/code\log.h,480
+c:/Dev/cmas/code\darray.h,750
+#define DARRAY_HDARRAY_H2,18
+class DArray {DArray5,58
+    T *data;data7,83
+    T *data;DArray::data7,83
+    size_t length;length8,97
+    size_t length;DArray::length8,97
+    size_t capacity;capacity9,117
+    size_t capacity;DArray::capacity9,117
+    DArray() {DArray11,141
+    DArray() {DArray::DArray11,141
+    void reserve(size_t num_elements) {reserve17,235
+    void reserve(size_t num_elements) {DArray::reserve17,235
+    void grow(size_t num_elements) {grow22,387
+    void grow(size_t num_elements) {DArray::grow22,387
+    void push(T element) {push31,657
+    void push(T element) {DArray::push31,657
+    T operator[](size_t index) {operator []39,817
+    T operator[](size_t index) {DArray::operator []39,817
+
+c:/Dev/cmas/code\log.h,206
 #define LOG_HLOG_H2,14
-#define __LOG(__LOG6,65
-#define __LOG(__LOG8,154
-#define __COLOR_RED __COLOR_RED11,191
-#define __COLOR_GREEN __COLOR_GREEN12,218
-#define __COLOR_BLUE __COLOR_BLUE13,247
-#define __COLOR_CYAN __COLOR_CYAN14,275
-#define __COLOR_YELLOW __COLOR_YELLOW15,303
-#define __COLOR_WHITE __COLOR_WHITE16,333
-#define LOG(LOG18,363
-#define ALERT(ALERT19,431
-#define WARNING(WARNING20,499
-#define ASSERT(ASSERT23,585
-#define ASSERT(ASSERT29,690
+#define FOREGROUND_YELLOW FOREGROUND_YELLOW6,51
+#define FOREGROUND_WHITE FOREGROUND_WHITE7,79
+#define LOG(LOG9,107
+#define ALERT(ALERT10,200
+#define WARNING(WARNING11,291
 
-c:/Dev/cmas/code\parse.c,1027
-Expr *parse_expr_operand() {parse_expr_operand9,115
-Expr *parse_expr_base() {parse_expr_base27,583
-Expr *parse_expr_unary() {parse_expr_unary37,808
-Expr *parse_expr_mul() {parse_expr_mul51,1102
-Expr *parse_expr_add() {parse_expr_add63,1377
-Expr *parse_expr_cmp() {parse_expr_cmp75,1648
-Expr *parse_expr_and() {parse_expr_and86,1894
-Expr *parse_expr_or() {parse_expr_or96,2114
-Expr *parse_expr_ternary() {parse_expr_ternary106,2331
-Expr *parse_expr() {parse_expr118,2634
-Expr *parse_expr_stream(char *str) {parse_expr_stream123,2714
-Typespec *parse_type() {parse_type129,2824
-Param *param_init(char *ident, Typespec *type) {param_init165,3732
-Param *parse_param() {parse_param172,3894
-Param **parse_param_list() {parse_param_list187,4227
-Typespec **parse_type_list() {parse_type_list200,4471
-Decl *parse_decl() {parse_decl212,4708
-Decl *parse_decl_stream(char *str) {parse_decl_stream240,5479
-StmtBlock *parse_stmt_block() {parse_stmt_block246,5589
-Stmt *parse_stmt() {parse_stmt265,5984
+c:/Dev/cmas/code\parse.cpp,2932
+char *token_kind_str(TokenKind kind) {token_kind_str8,107
+void ast_print(int t, Ast *node) {ast_print12,190
+Ast *ast_init(AstKind kind) {ast_init95,3170
+Param *param_init(String ident, Typespec *type) {param_init102,3330
+Typespec *typespec_init(TypespecKind kind) {typespec_init110,3548
+Ast *ast_ident(Token tok) {ast_ident116,3704
+Ast *ast_constant(Token tok) {ast_constant122,3824
+Ast *ast_expr_unary(Ast *expr, Token op) {ast_expr_unary128,3953
+Ast *ast_expr_binary(Ast *left, Ast *right, Token op) {ast_expr_binary135,4128
+Ast *ast_expr_ternary(Ast *cond, Ast *left, Ast *right) {ast_expr_ternary143,4357
+Ast *ast_expr_call(Ast *ident, DArray<Ast *> args) {ast_expr_call151,4596
+Ast *ast_stmt_assign(Ast *lvalue, Ast *rvalue) {ast_stmt_assign158,4784
+Ast *ast_stmt_if(DArray<Ast*> conditions, DArray<Ast*> blocks, Ast *else_block) {ast_stmt_if165,4980
+Ast *ast_stmt_while(Ast *expr, Ast *block) {ast_stmt_while173,5250
+Ast *ast_stmt_for(Ast *init, Ast *cond, Ast *iterator, Ast *block) {ast_stmt_for180,5438
+Ast *ast_stmt_compound(DArray<Ast*> stmts) {ast_stmt_compound189,5718
+Ast *ast_decl_var(Ast *ident, Typespec *type) {ast_decl_var195,5877
+Ast *ast_decl_proc(Ast *ident, DArray<Param*> params, DArray<Typespec*> return_types, Ast *block) {ast_decl_proc202,6057
+Ast *ast_decl_struct(Ast *ident, DArray<AggregateField*> fields) {ast_decl_struct211,6382
+Ast *ast_decl_enum(Ast *ident, DArray<EnumField*> fields) {ast_decl_enum218,6594
+Typespec *parse_type() {parse_type225,6793
+Ast *parse_expr_operand() {parse_expr_operand262,7745
+Ast *parse_expr_base() {parse_expr_base272,8016
+Ast *parse_expr_unary() {parse_expr_unary283,8262
+Ast *parse_expr_mul() {parse_expr_mul297,8553
+Ast *parse_expr_add() {parse_expr_add310,8840
+Ast *parse_expr_cmp() {parse_expr_cmp322,9121
+Ast *parse_expr_and() {parse_expr_and334,9402
+Ast *parse_expr_or() {parse_expr_or344,9643
+Ast *parse_expr_ternary() {parse_expr_ternary354,9882
+Ast *parse_expr() {parse_expr365,10191
+Ast *parse_expr_stream(char *str) {parse_expr_stream370,10274
+Param *parse_param() {parse_param376,10388
+DArray<Param*> parse_param_list() {parse_param_list391,10752
+DArray<Typespec*> parse_type_list() {parse_type_list405,11056
+AggregateField *aggregate_field(Token ident, Typespec *type) {aggregate_field417,11302
+DArray<AggregateField*> parse_aggregate_field_list() {parse_aggregate_field_list424,11521
+EnumField *enum_field(Token ident) {enum_field439,11987
+DArray<EnumField*> parse_enum_field_list() {parse_enum_field_list446,12161
+Ast *parse_decl() {parse_decl467,12644
+Ast *parse_decl_stream(char *str) {parse_decl_stream506,14084
+Ast *parse_compound_stmt() {parse_compound_stmt512,14198
+Ast *parse_if_stmt() {parse_if_stmt527,14567
+Ast *parse_while_stmt() {parse_while_stmt555,15316
+Ast *parse_return_stmt() {parse_return_stmt564,15543
+Ast *parse_stmt() {parse_stmt573,15768
 
-c:/Dev/cmas/code\parse.h,6215
+c:/Dev/cmas/code\parse.h,7526
 #define PARSE_HPARSE_H2,16
-typedef struct Expr Expr;Expr6,54
-typedef struct Typespec Typespec;Typespec7,80
-typedef enum TypespecKind TypespecKind;TypespecKind8,114
-typedef struct Param Param;Param9,154
-typedef struct AggregateField AggregateField;AggregateField10,182
-typedef struct EnumField EnumField;EnumField11,228
-typedef struct Stmt Stmt;Stmt12,264
-typedef struct StmtBlock StmtBlock;StmtBlock13,290
-struct Expr {Expr15,327
-    int kind;kind16,341
-    int kind;Expr::kind16,341
-        int64_t int_val;int_val19,368
-        int64_t int_val;Expr::__anon3::int_val19,368
-        double float_val;float_val20,393
-        double float_val;Expr::__anon3::float_val20,393
-        char *str_val;str_val21,419
-        char *str_val;Expr::__anon3::str_val21,419
-        char *ident;ident22,442
-        char *ident;Expr::__anon3::ident22,442
-            Expr *expr;expr25,489
-            Expr *expr;Expr::__anon3::__anon4::expr25,489
-            int op;op26,513
-            int op;Expr::__anon3::__anon4::op26,513
-        } unary;unary27,533
-        } unary;Expr::__anon3::unary27,533
-            Expr *left;left30,576
-            Expr *left;Expr::__anon3::__anon5::left30,576
-            Expr *right;right31,600
-            Expr *right;Expr::__anon3::__anon5::right31,600
-            int op;op32,625
-            int op;Expr::__anon3::__anon5::op32,625
-        } binary;binary33,645
-        } binary;Expr::__anon3::binary33,645
-            Expr *cond;cond36,681
-            Expr *cond;Expr::__anon3::__anon6::cond36,681
-            Expr *left;left37,705
-            Expr *left;Expr::__anon3::__anon6::left37,705
-            Expr *right;right38,729
-            Expr *right;Expr::__anon3::__anon6::right38,729
-        } ternary;ternary39,754
-        } ternary;Expr::__anon3::ternary39,754
-            char *ident;ident42,791
-            char *ident;Expr::__anon3::__anon7::ident42,791
-            Expr **args;args43,816
-            Expr **args;Expr::__anon3::__anon7::args43,816
-        } call;call44,841
-        } call;Expr::__anon3::call44,841
-enum ExprKind {ExprKind48,868
-    Expr_None,Expr_None49,884
-    Expr_Int,Expr_Int51,900
-    Expr_Float,Expr_Float52,914
-    Expr_Str,Expr_Str53,930
-    Expr_Ident,Expr_Ident54,944
-    Expr_Call,Expr_Call56,965
-    Expr_Index,Expr_Index57,980
-    Expr_Field,Expr_Field58,996
-    Expr_Compound,Expr_Compound59,1012
-    Expr_Cast,Expr_Cast60,1031
-    Expr_Unary,Expr_Unary62,1047
-    Expr_Binary,Expr_Binary63,1063
-    Expr_Ternary,Expr_Ternary64,1080
-enum Typespec_Kind {Typespec_Kind67,1102
-    Typespec_None,Typespec_None68,1123
-    Typespec_Ident,Typespec_Ident70,1143
-    Typespec_Array,Typespec_Array72,1168
-    Typespec_Ptr,Typespec_Ptr73,1188
-    Typespec_Struct,Typespec_Struct75,1211
-    Typespec_Enum,Typespec_Enum76,1232
-    Typespec_ProcTypespec_Proc77,1251
-struct Typespec {Typespec80,1273
-    int kind;kind81,1291
-    int kind;Typespec::kind81,1291
-    char *name;name82,1305
-    char *name;Typespec::name82,1305
-    Expr *expr;expr84,1322
-    Expr *expr;Typespec::expr84,1322
-    Typespec *sub;sub85,1338
-    Typespec *sub;Typespec::sub85,1338
-struct Param {Param88,1361
-    char *ident;ident89,1376
-    char *ident;Param::ident89,1376
-    Typespec *type;type90,1393
-    Typespec *type;Param::type90,1393
-struct AggregateField {AggregateField93,1417
-    Typespec *type;type94,1441
-    Typespec *type;AggregateField::type94,1441
-    char *ident;ident95,1461
-    char *ident;AggregateField::ident95,1461
-struct EnumField {EnumField99,1502
-    char *ident;ident100,1521
-    char *ident;EnumField::ident100,1521
-    int64_t val;val101,1538
-    int64_t val;EnumField::val101,1538
-enum StmtKind {StmtKind103,1558
-    Stmt_None,Stmt_None104,1574
-    Stmt_Assign,Stmt_Assign106,1590
-    Stmt_Expr,Stmt_Expr107,1607
-    Stmt_If,Stmt_If109,1627
-    Stmt_Do,Stmt_Do110,1640
-    Stmt_While,Stmt_While111,1653
-    Stmt_Switch,Stmt_Switch112,1669
-    Stmt_Block,Stmt_Block114,1691
-struct Stmt {Stmt117,1711
-    int kind;kind118,1725
-    int kind;Stmt::kind118,1725
-        Expr *expr;expr121,1752
-        Expr *expr;Stmt::__anon8::expr121,1752
-            Expr *left;left124,1798
-            Expr *left;Stmt::__anon8::__anon9::left124,1798
-            Expr *right;right125,1822
-            Expr *right;Stmt::__anon8::__anon9::right125,1822
-        } assign;assign126,1847
-        } assign;Stmt::__anon8::assign126,1847
-struct StmtBlock {StmtBlock130,1876
-    Stmt **statements;statements131,1895
-    Stmt **statements;StmtBlock::statements131,1895
-typedef struct Decl Decl;Decl134,1922
-enum Decl_Kind {Decl_Kind136,1949
-    Decl_None,Decl_None137,1966
-    Decl_Var,Decl_Var139,1982
-    Decl_Proc,Decl_Proc140,1996
-    Decl_Struct,Decl_Struct141,2011
-    Decl_Enum,Decl_Enum142,2028
-struct Decl {Decl145,2047
-    int kind;kind146,2061
-    int kind;Decl::kind146,2061
-    char *ident;ident147,2075
-    char *ident;Decl::ident147,2075
-            Typespec *type;type151,2122
-            Typespec *type;Decl::__anon10::__anon11::type151,2122
-        } var;var152,2150
-        } var;Decl::__anon10::var152,2150
-            Param **params;params154,2182
-            Param **params;Decl::__anon10::__anon12::params154,2182
-            Typespec **return_types;return_types155,2210
-            Typespec **return_types;Decl::__anon10::__anon12::return_types155,2210
-            StmtBlock *block;block156,2247
-            StmtBlock *block;Decl::__anon10::__anon12::block156,2247
-        } proc;proc157,2277
-        } proc;Decl::__anon10::proc157,2277
-            AggregateField **fields;fields159,2310
-            AggregateField **fields;Decl::__anon10::__anon13::fields159,2310
-        } struct_decl;struct_decl160,2347
-        } struct_decl;Decl::__anon10::struct_decl160,2347
-            EnumField **fields;fields162,2387
-            EnumField **fields;Decl::__anon10::__anon14::fields162,2387
-        } enum_decl;enum_decl163,2419
-        } enum_decl;Decl::__anon10::enum_decl163,2419
+enum AstKind {AstKind15,177
+    Ast_None,Ast_None16,192
+    Ast_Ident,Ast_Ident18,211
+    Ast_Constant,Ast_Constant19,226
+    Ast_UnaryExpr,Ast_UnaryExpr21,245
+    Ast_BinaryExpr,Ast_BinaryExpr22,264
+    Ast_TernaryExpr,Ast_TernaryExpr23,284
+    Ast_CallExpr,Ast_CallExpr24,305
+    Ast_IndexExpr,Ast_IndexExpr25,323
+    Ast_CompoundStmt,Ast_CompoundStmt27,343
+    Ast_AssignStmt,Ast_AssignStmt28,365
+    Ast_ExprStmt,Ast_ExprStmt29,385
+    Ast_IfStmt,Ast_IfStmt30,403
+    Ast_WhileStmt,Ast_WhileStmt31,419
+    Ast_ForStmt,Ast_ForStmt32,438
+    Ast_ReturnStmt,Ast_ReturnStmt33,455
+    Ast_VarDecl,Ast_VarDecl35,476
+    Ast_ProcDecl,Ast_ProcDecl36,493
+    Ast_StructDecl,Ast_StructDecl37,511
+    Ast_EnumDecl,Ast_EnumDecl38,531
+struct Ast {Ast41,553
+    AstKind kind;kind42,566
+    AstKind kind;Ast::kind42,566
+            Token token;token46,614
+            Token token;Ast::__anon1::__anon2::token46,614
+        } ident;ident47,639
+        } ident;Ast::__anon1::ident47,639
+            Token value;value49,673
+            Token value;Ast::__anon1::__anon3::value49,673
+        } constant;constant50,698
+        } constant;Ast::__anon1::constant50,698
+            Ast *expr;expr52,735
+            Ast *expr;Ast::__anon1::__anon4::expr52,735
+            Token op;op53,758
+            Token op;Ast::__anon1::__anon4::op53,758
+        } unary_expr;unary_expr54,780
+        } unary_expr;Ast::__anon1::unary_expr54,780
+            Ast *left;left56,819
+            Ast *left;Ast::__anon1::__anon5::left56,819
+            Ast *right;right57,842
+            Ast *right;Ast::__anon1::__anon5::right57,842
+            Token op;op58,866
+            Token op;Ast::__anon1::__anon5::op58,866
+        } binary_expr;binary_expr59,888
+        } binary_expr;Ast::__anon1::binary_expr59,888
+            Ast *cond;cond61,928
+            Ast *cond;Ast::__anon1::__anon6::cond61,928
+            Ast *left;left62,951
+            Ast *left;Ast::__anon1::__anon6::left62,951
+            Ast *right;right63,974
+            Ast *right;Ast::__anon1::__anon6::right63,974
+        } ternary_expr;ternary_expr64,998
+        } ternary_expr;Ast::__anon1::ternary_expr64,998
+            Ast *ident;ident66,1039
+            Ast *ident;Ast::__anon1::__anon7::ident66,1039
+            DArray<Ast*> args;args67,1063
+            DArray<Ast*> args;Ast::__anon1::__anon7::args67,1063
+        } call_expr;call_expr68,1094
+        } call_expr;Ast::__anon1::call_expr68,1094
+            Ast *lvalue;lvalue71,1133
+            Ast *lvalue;Ast::__anon1::__anon8::lvalue71,1133
+            Ast *rvalue;rvalue72,1158
+            Ast *rvalue;Ast::__anon1::__anon8::rvalue72,1158
+        } assign_stmt;assign_stmt73,1183
+        } assign_stmt;Ast::__anon1::assign_stmt73,1183
+            DArray<Ast*> conditions;conditions75,1223
+            DArray<Ast*> conditions;Ast::__anon1::__anon9::conditions75,1223
+            DArray<Ast*> blocks;blocks76,1260
+            DArray<Ast*> blocks;Ast::__anon1::__anon9::blocks76,1260
+            Ast *else_block;else_block77,1293
+            Ast *else_block;Ast::__anon1::__anon9::else_block77,1293
+        } if_stmt;if_stmt78,1322
+        } if_stmt;Ast::__anon1::if_stmt78,1322
+            Ast *init;init80,1358
+            Ast *init;Ast::__anon1::__anon10::init80,1358
+            Ast *condition;condition81,1381
+            Ast *condition;Ast::__anon1::__anon10::condition81,1381
+            Ast *iterator;iterator82,1409
+            Ast *iterator;Ast::__anon1::__anon10::iterator82,1409
+            Ast *block;block83,1436
+            Ast *block;Ast::__anon1::__anon10::block83,1436
+        } for_stmt;for_stmt84,1460
+        } for_stmt;Ast::__anon1::for_stmt84,1460
+            Ast *condition;condition86,1497
+            Ast *condition;Ast::__anon1::__anon11::condition86,1497
+            Ast *block;block87,1525
+            Ast *block;Ast::__anon1::__anon11::block87,1525
+        } while_stmt;while_stmt88,1549
+        } while_stmt;Ast::__anon1::while_stmt88,1549
+            DArray<Ast*> statements;statements90,1588
+            DArray<Ast*> statements;Ast::__anon1::__anon12::statements90,1588
+        } compound_stmt;compound_stmt91,1625
+        } compound_stmt;Ast::__anon1::compound_stmt91,1625
+            Ast *expr;expr93,1667
+            Ast *expr;Ast::__anon1::__anon13::expr93,1667
+        } return_stmt;return_stmt94,1690
+        } return_stmt;Ast::__anon1::return_stmt94,1690
+            Ast *ident;ident97,1739
+            Ast *ident;Ast::__anon1::__anon14::ident97,1739
+            Typespec *type;type98,1763
+            Typespec *type;Ast::__anon1::__anon14::type98,1763
+        } var_decl;var_decl99,1791
+        } var_decl;Ast::__anon1::var_decl99,1791
+            Ast *ident;ident101,1828
+            Ast *ident;Ast::__anon1::__anon15::ident101,1828
+            DArray<Param*> params;params102,1852
+            DArray<Param*> params;Ast::__anon1::__anon15::params102,1852
+            DArray<Typespec*> return_types;return_types103,1887
+            DArray<Typespec*> return_types;Ast::__anon1::__anon15::return_types103,1887
+            Ast *block;block104,1931
+            Ast *block;Ast::__anon1::__anon15::block104,1931
+        } proc_decl;proc_decl105,1955
+        } proc_decl;Ast::__anon1::proc_decl105,1955
+            Ast *ident;ident107,1993
+            Ast *ident;Ast::__anon1::__anon16::ident107,1993
+            DArray<AggregateField*> fields;fields108,2017
+            DArray<AggregateField*> fields;Ast::__anon1::__anon16::fields108,2017
+        } struct_decl;struct_decl109,2061
+        } struct_decl;Ast::__anon1::struct_decl109,2061
+            Ast *ident;ident111,2101
+            Ast *ident;Ast::__anon1::__anon17::ident111,2101
+            DArray<EnumField*> fields;fields112,2125
+            DArray<EnumField*> fields;Ast::__anon1::__anon17::fields112,2125
+        } enum_decl;enum_decl113,2164
+        } enum_decl;Ast::__anon1::enum_decl113,2164
+enum TypespecKind {TypespecKind139,2437
+    Typespec_None,Typespec_None140,2457
+    Typespec_Ident,Typespec_Ident142,2477
+    Typespec_Array,Typespec_Array144,2502
+    Typespec_Ptr,Typespec_Ptr145,2522
+    Typespec_Struct,Typespec_Struct147,2545
+    Typespec_Enum,Typespec_Enum148,2566
+    Typespec_ProcTypespec_Proc149,2585
+struct Typespec {Typespec152,2607
+    TypespecKind kind;kind153,2625
+    TypespecKind kind;Typespec::kind153,2625
+    String name;name154,2648
+    String name;Typespec::name154,2648
+            Ast *expr;expr158,2695
+            Ast *expr;Typespec::__anon18::__anon19::expr158,2695
+        } array;array159,2718
+        } array;Typespec::__anon18::array159,2718
+    Typespec *sub;sub161,2742
+    Typespec *sub;Typespec::sub161,2742
+struct Param {Param164,2765
+    String ident;ident165,2780
+    String ident;Param::ident165,2780
+    Typespec *type;type166,2798
+    Typespec *type;Param::type166,2798
+struct AggregateField {AggregateField169,2822
+    Token ident;ident170,2846
+    Token ident;AggregateField::ident170,2846
+    Typespec *type;type171,2863
+    Typespec *type;AggregateField::type171,2863
+struct EnumField {EnumField175,2907
+    Token ident;ident176,2926
+    Token ident;EnumField::ident176,2926
+    int64_t val;val177,2943
+    int64_t val;EnumField::val177,2943
 
-c:/Dev/cmas/code\tok.c,853
-Token token;token8,97
-char *stream;stream9,110
-void syntax_error(const char *fmt, ...) {syntax_error11,125
-int char_to_digit[256] = { ['0'] = 0, ['1'] = 1, ['2'] = 2, ['3'] = 3, ['4'] = 4, ['5'] = 5, ['6'] = 6, ['7'] = 7, ['8'] = 8, ['9'] = 9, ['A'] = 10, ['B'] = 11, ['C'] = 12, ['D'] = 13, ['E'] = 14, ['F'] = 15};char_to_digit26,351
-double parse_float() {parse_float29,563
-int64_t parse_int() {parse_int52,949
-char char_to_escape[256] = {['t'] = '\t', ['n'] = '\n', ['r'] = '\r', ['\\'] = '\\', ['\''] = '\'', ['"'] = '"'};char_to_escape80,1615
-#define TOK1(TOK182,1730
-#define TOK2(TOK288,1942
-void next_token() {next_token100,2444
-bool is_token(int kind) {is_token339,9024
-bool match_token(int kind) {match_token343,9084
-void expect_token(int kind) {expect_token352,9230
-void init_stream(char *str) {init_stream360,9405
+c:/Dev/cmas/code\string.cpp,224
+size_t str_len(const char *cstr) {str_len5,46
+String str_make(const char *cstr) {str_make15,222
+bool str_equals(String str1, String str2) {str_equals25,502
+void str_append(String str1, String str2) {str_append33,723
 
-c:/Dev/cmas/code\tok.h,2744
+c:/Dev/cmas/code\string.h,808
+#define STRING_HSTRING_H2,18
+class String {String12,204
+    char *text;text14,229
+    char *text;String::text14,229
+    size_t length;length15,246
+    size_t length;String::length15,246
+    String () {String17,268
+    String () {String::String17,268
+    void push(char c) {push22,344
+    void push(char c) {String::push22,344
+    void operator +=(char c) {operator +=29,530
+    void operator +=(char c) {String::operator +=29,530
+    bool operator ==(const char *s) {operator ==32,587
+    bool operator ==(const char *s) {String::operator ==32,587
+    bool operator ==(String s) {operator ==35,681
+    bool operator ==(String s) {String::operator ==35,681
+    char operator [](size_t index) {operator []38,760
+    char operator [](size_t index) {String::operator []38,760
+
+c:/Dev/cmas/code\tok.cpp,593
+Token token;token13,194
+char *stream;stream14,207
+int char_to_digit(char c) {char_to_digit16,222
+double parse_float() {parse_float22,386
+int64_t parse_int() {parse_int45,772
+char char_to_escape(char c) {char_to_escape73,1424
+#define TOK1(TOK186,1674
+#define TOK2(TOK292,1886
+void next_token() {next_token104,2388
+bool is_token(TokenKind kind) {is_token352,9266
+bool match_token(TokenKind kind) {match_token355,9331
+Token advance_token() {advance_token364,9483
+void expect_token(TokenKind kind) {expect_token370,9573
+void init_stream(char *str) {init_stream378,9800
+
+c:/Dev/cmas/code\tok.h,1240
 #define TOK_HTOK_H2,14
-    int kind;kind8,88
-    int kind;__anon15::kind8,88
-        int64_t int_val;int_val11,115
-        int64_t int_val;__anon15::__anon16::int_val11,115
-        double float_val;float_val12,140
-        double float_val;__anon15::__anon16::float_val12,140
-        char *str_val;str_val13,166
-        char *str_val;__anon15::__anon16::str_val13,166
-        char *ident_val;ident_val14,189
-        char *ident_val;__anon15::__anon16::ident_val14,189
-} Token;Token16,221
-enum TokenKind {TokenKind21,273
-    Token_EOF,Token_EOF22,290
-    Token_Ident = 128,Token_Ident24,306
-    Token_Int,Token_Int25,329
-    Token_Float,Token_Float26,344
-    Token_Str,Token_Str27,361
-    Token_Eq,Token_Eq29,377
-    Token_Neq,Token_Neq30,391
-    Token_Lt,Token_Lt31,406
-    Token_Gt,Token_Gt32,420
-    Token_Lteq,Token_Lteq33,434
-    Token_Gteq,Token_Gteq34,450
-    Token_Lparen,Token_Lparen36,471
-    Token_Rparen,Token_Rparen37,489
-    Token_Lbrace,Token_Lbrace38,507
-    Token_Rbrace,Token_Rbrace39,525
-    Token_Lbracket,Token_Lbracket40,543
-    Token_Rbracket,Token_Rbracket41,563
-    Token_Lshift,Token_Lshift43,584
-    Token_Rshift,Token_Rshift44,602
-    Token_Plus,Token_Plus45,620
-    Token_Minus,Token_Minus46,636
-    Token_Div,Token_Div47,653
-    Token_Mult,Token_Mult48,668
-    Token_Mod,Token_Mod49,684
-    Token_Inc,Token_Inc51,700
-    Token_Dec,Token_Dec52,715
-    Token_Bang,Token_Bang54,735
-    Token_Amper,Token_Amper55,751
-    Token_And,Token_And56,768
-    Token_Bar,Token_Bar57,783
-    Token_Or,Token_Or58,798
-    Token_Xor,Token_Xor59,812
-    Token_Assign,Token_Assign61,832
-    Token_AutoAssign,Token_AutoAssign62,850
-    Token_PlusAssign,Token_PlusAssign63,872
-    Token_MinusAssign,Token_MinusAssign64,894
-    Token_MultAssign,Token_MultAssign65,917
-    Token_DivAssign,Token_DivAssign66,939
-    Token_LshiftAssign,Token_LshiftAssign67,960
-    Token_RshiftAssign,Token_RshiftAssign68,984
-    Token_ModAssign,Token_ModAssign69,1008
-    Token_AndAssign,Token_AndAssign70,1029
-    Token_OrAssign,Token_OrAssign71,1050
-    Token_XorAssign,Token_XorAssign72,1070
-    Token_Semi,Token_Semi74,1092
-    Token_Colon,Token_Colon75,1108
-    Token_Colon2,Token_Colon276,1125
-    Token_Dot,Token_Dot77,1143
-    Token_Comma,Token_Comma78,1158
-    Token_Ellipsis,Token_Ellipsis79,1175
-    Token_Arrow,Token_Arrow80,1195
-    Token_Hash,Token_Hash81,1212
-    Token_Question,Token_Question82,1228
-inline bool is_cmp_op(int kind) {is_cmp_op85,1252
-inline bool is_add_op(int kind) {is_add_op89,1425
-inline bool is_mul_op(int kind) {is_mul_op93,1560
-inline bool is_unary_op(int op) {is_unary_op97,1743
+struct Token {Token15,164
+    char *start;start16,179
+    char *start;Token::start16,179
+    TokenKind kind;kind17,196
+    TokenKind kind;Token::kind17,196
+        int64_t int_val;int_val20,229
+        int64_t int_val;Token::__anon20::int_val20,229
+        double float_val;float_val21,254
+        double float_val;Token::__anon20::float_val21,254
+        String str_val;str_val22,280
+        String str_val;Token::__anon20::str_val22,280
+        String ident_val;ident_val23,304
+        String ident_val;Token::__anon20::ident_val23,304
+    Token() {Token26,338
+    Token() {Token::Token26,338
+#define TOKENS(TOKENS31,391
+enum TokenKind {TokenKind115,2960
+#define TOK(TOK116,2977
+    TOKENS()TOKENS117,3001
+#undef TOKTOK118,3014
+#define TOK(TOK122,3063
+#undef TOKTOK124,3111
+static String token_strings[] = {token_strings121,3029
+inline String token_kind_string(TokenKind kind) {token_kind_string127,3126
+inline bool is_keyword() {is_keyword131,3211
+inline bool is_cmp_op(int kind) {is_cmp_op135,3318
+inline bool is_add_op(int kind) {is_add_op139,3491
+inline bool is_mul_op(int kind) {is_mul_op143,3626
+inline bool is_unary_op(int op) {is_unary_op147,3809

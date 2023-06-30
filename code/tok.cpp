@@ -1,30 +1,23 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
+#include <stdarg.h>
 
 #include "common.h"
+#include "log.h"
+#include "darray.h"
 #include "tok.h"
 
 Token token;
 char *stream;
 
-void syntax_error(const char *fmt, ...) {
-    ALERT("syntax error: ");
-
-    va_list args;
-    va_start(args, fmt);
-    vprintf(fmt, args);
-    va_end(args);
-
-#ifdef DEBUG
-    __debugbreak();
-#endif
-
-    exit(EXIT_FAILURE);
+int char_to_digit(char c) {
+    if (c >= '0' || c <= '9') return c - '0';
+    if (toupper(c) >= 'A' && toupper(c) <= 'F') return toupper(c) - 'A';
+    return 0;
 }
-
-int char_to_digit[256] = { ['0'] = 0, ['1'] = 1, ['2'] = 2, ['3'] = 3, ['4'] = 4, ['5'] = 5, ['6'] = 6, ['7'] = 7, ['8'] = 8, ['9'] = 9, ['A'] = 10, ['B'] = 11, ['C'] = 12, ['D'] = 13, ['E'] = 14, ['F'] = 15};
-
 
 double parse_float() {
     char *start = stream;
@@ -67,7 +60,7 @@ int64_t parse_int() {
     }
 
     while (isalnum(*stream)) {
-        int digit = char_to_digit[(int)toupper(*stream)];
+        int digit = char_to_digit(*stream);
         if (digit >= base) {
             // invalid digit in integer literal
         }
@@ -77,7 +70,18 @@ int64_t parse_int() {
     return result;
 }
 
-char char_to_escape[256] = {['t'] = '\t', ['n'] = '\n', ['r'] = '\r', ['\\'] = '\\', ['\''] = '\'', ['"'] = '"'};
+char char_to_escape(char c) {
+    switch (c) {
+    case 't': return '\t';
+    case 'n': return '\n';
+    case 'r': return '\r';
+    case '\\': return '\\';
+    case '\'': return '\'';
+    case '"': return '"';
+    default:
+        return c;
+    }
+}
 
 #define TOK1(CH, TOK)                           \
     case CH:                                    \
@@ -102,14 +106,15 @@ begin:
     char *start = stream;
     
     switch (*stream) {
+        TOK1('\0', Token_EOF);
         TOK2('=', Token_Assign, '=', Token_Eq);
 
         TOK1('(', Token_Lparen);
         TOK1(')', Token_Rparen);
         TOK1('[', Token_Lbracket);
-        TOK1(']', Token_Lbracket);
+        TOK1(']', Token_Rbracket);
         TOK1('{', Token_Lbrace);
-        TOK1('}', Token_Lbrace);
+        TOK1('}', Token_Rbrace);
         
         TOK1(';', Token_Semi);
         TOK1(',', Token_Comma);
@@ -232,7 +237,7 @@ begin:
         stream++;
         if (*stream == '\\') {
             stream++;
-            ch = char_to_escape[*stream];
+            ch = char_to_escape(*stream);
             // TODO: check valid escape
             stream++;
         } else {
@@ -246,13 +251,12 @@ begin:
     } break;
 
     case '"': {
-        char *str_val = NULL;
+        String str_val;
         stream++;
 
         while (*stream) {
             char ch = *stream;
             if (ch == '"') {
-                buf_push(str_val, '\0');
                 stream++;
                 break;
             }
@@ -262,7 +266,7 @@ begin:
                 break;
             }
 
-            buf_push(str_val, ch);
+            str_val += ch;
             stream++;
         }
 
@@ -320,27 +324,35 @@ begin:
     } break;
         
     case 'a': case 'b': case 'c': case 'd': case 'e': case 'f': case 'g': case 'h': case 'i': case 'j': case 'k': case 'l': case 'm': case 'n': case 'o': case 'p': case 'q': case 'r': case 's': case 't': case 'u': case 'v': case 'w': case 'x': case 'y': case 'z': case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G': case 'H': case 'I': case 'J': case 'K': case 'L': case 'M': case 'N': case 'O': case 'P': case 'Q': case 'R': case 'S': case 'T': case 'U': case 'V': case 'W': case 'X': case 'Y': case 'Z': case '_': {
-        char *ident = NULL;
+        String ident;
+        token.kind = Token_Ident;
         while (isalnum(*stream) || *stream == '_') {
-            buf_push(ident, *stream);
+            ident += *stream;
             stream++;
         }
-        buf_push(ident, '\0');
-        token.kind = Token_Ident;
         token.ident_val = ident;
+
+        for (int kind = (int)Token_KeywordBegin + 1; kind < (int)Token_KeywordEnd; kind++) {
+            String keyword = token_strings[kind];
+            if (keyword == ident) {
+                token.kind = (TokenKind)kind;
+                break;
+            }
+        }
     } break;
 
     default:
-        token.kind = *stream;
+        token.kind = (TokenKind)*stream;
+        syntax_error("Unexpected character %c", *stream);
         stream++;
     }
+    token.start = start;
 }
 
-bool is_token(int kind) {
+bool is_token(TokenKind kind) {
     return token.kind == kind;
 }
-
-bool match_token(int kind) {
+bool match_token(TokenKind kind) {
     if (token.kind == kind) {
         next_token();
         return true;
@@ -349,11 +361,17 @@ bool match_token(int kind) {
     }
 }
 
-void expect_token(int kind) {
+Token advance_token() {
+    Token result = token;
+    next_token();
+    return result;
+}
+
+void expect_token(TokenKind kind) {
     if (token.kind == kind) {
         next_token();
     } else {
-        syntax_error("expected token %d, got %d\n", kind, token.kind);
+        syntax_error("expected token %s, got %s", token_kind_string(kind).text, token_kind_string(token.kind).text);
     }
 }
 

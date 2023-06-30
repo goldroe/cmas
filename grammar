@@ -1,10 +1,17 @@
-vec2 :: struct {
+Vec2 :: struct {
   x: int;
   y: int;
 }
 
-vec2_add :: proc(a: vec2, b: vec2) -> vec2 {
-  // result: vec2 = a;
+BarFlags :: enum {
+  Bar_Foo,
+  Bar_Bizz,
+  Bar_Buzz,
+  Bar_C,
+}
+
+vec2_add :: proc(a: Vec2, b: Vec2) -> vec2 {
+  // result: Vec2 = a;
   result := a;
   a.x += b.x;
   a.y += b.y;
@@ -27,54 +34,70 @@ main :: proc(argc: int, argv: *char) -> int {
   return x;
 }
 
-INT := 0
+
+
+
+==
+Tokens:
+==
+
+int := 0
            | [1-9][0-9]*
            | 0[xX][0-9a-eA-E]+
            | 9[bB][0-1]+
            | 0[0-7]+
 
-FLOAT := [0-9]+ \. [0-9]* 'f'?
-             | [0-9]* \. [0-9]+ 'f'?
+float := [0-9]+ \. [0-9]* "f"?
+             | [0-9]* \. [0-9]+ "f"?
 
-IDENT := [a-zA-Z_][a-zA-Z_0-9]*
+ident := [a-zA-Z_][a-zA-Z_0-9]*
 
-STR   := \"[^\r\n] \"
+str   := \"[^\r\n] \"
 
 ==
-Statements:
+Grammar
 ==
 
-STMT  := EXPR
-       | DECL
-       | IDENT "=" EXPR
-       | "if" EXPR stmtblock
+lvalue := ident
+        | ([])* lvalue
+        | "*"* expr
 
-stmtblock := "{" STMT* "}"
+stmtblock := "{" stmt* "}"
+
+stmt  := decl
+       | expr ";"
+       | ident "=" expr ";"
+       | ifstmt
+       | "while" expr stmtblock
+       | "for" var_decl ";" expr ";" expr stmtblock
+
+
+ifstmt := "if" expr stmtblock ("else if" expr stmtblock)* "else" stmtblock
 
 ==
 Declarations:
 ==
 
-DECL  := VAR_DECL
-       | PROC_DECL
-       | STRUCT_DECL
-       | ENUM_DECL
+decl  := var_decl
+       | proc_decl
+       | struct_decl
+       | enum_decl
 
 base_type := int
            | float
            | char
-           | IDENT
+           | ident
 
-type  := ("*")* ("[" EXPR? "]")* base_type
+type  := ("*")* ("[" expr? "]")* base_type
 typelist := type ("," type)*
 
-param := (IDENT ":" TYPE)
+param := (ident ":" type)
 paramlist := param ("," param)*
 
-enum_field := IDENT ("=" INT)? ","
-aggregate_field := IDENT ":" TYPE ";"
+enum_field := ident ("=" int)? ","
+aggregate_field := ident ":" type ";"
 
-VAR_DECL := IDENT ":" type ";"
-PROC_DECL := IDENT "::" "proc" "(" paramlist? ")" "->" typelist stmtblock
-STRUCT_DECL := IDENT "::" "struct" "{" aggregate_field* "}"
-ENUM_DECL := IDENT "::" "enum" "{" enum_field* "}"
+var_decl    := ident ":"  type ";"
+proc_decl   := ident "::" "proc"   "(" paramlist? ")" "->" typelist stmtblock
+struct_decl := ident "::" "struct" "{" aggregate_field* "}"
+enum_decl   := ident "::" "enum"   "{" enum_field* "}"

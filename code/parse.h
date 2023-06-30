@@ -3,48 +3,122 @@
 
 #include <stdint.h>
 
-typedef struct Expr Expr;
-typedef struct Typespec Typespec;
-typedef enum TypespecKind TypespecKind;
-typedef struct Param Param;
-typedef struct AggregateField AggregateField;
-typedef struct EnumField EnumField;
-typedef struct Stmt Stmt;
-typedef struct StmtBlock StmtBlock;
+#include "darray.h"
+#include "tok.h"
 
-struct Expr {
-    int kind;
+struct Ast;
+struct Param;
+struct Typespec;
+struct AggregateField;
+struct EnumField;
+
+enum AstKind {
+    Ast_None,
+    
+    Ast_Ident,
+    Ast_Constant,
+
+    Ast_UnaryExpr,
+    Ast_BinaryExpr,
+    Ast_TernaryExpr,
+    Ast_CallExpr,
+    Ast_IndexExpr,
+
+    Ast_CompoundStmt,
+    Ast_AssignStmt,
+    Ast_ExprStmt,
+    Ast_IfStmt,
+    Ast_WhileStmt,
+    Ast_ForStmt,
+    Ast_ReturnStmt,
+
+    Ast_VarDecl,
+    Ast_ProcDecl,
+    Ast_StructDecl,
+    Ast_EnumDecl,
+};
+
+struct Ast {
+    AstKind kind;
 
     union {
-        int64_t int_val;
-        double float_val;
-        char *str_val;
-        char *ident;
-        
         struct {
-            Expr *expr;
-            int op;
-        } unary;
-        
+            Token token;
+        } ident;
         struct {
-            Expr *left;
-            Expr *right;
-            int op;
-        } binary;
+            Token value;
+        } constant;
+        struct {
+            Ast *expr;
+            Token op;
+        } unary_expr;
+        struct {
+            Ast *left;
+            Ast *right;
+            Token op;
+        } binary_expr;
+        struct {
+            Ast *cond;
+            Ast *left;
+            Ast *right;
+        } ternary_expr;
+        struct {
+            Ast *ident;
+            DArray<Ast*> args;
+        } call_expr;
 
         struct {
-            Expr *cond;
-            Expr *left;
-            Expr *right;
-        } ternary;
-
+            Ast *expr;
+        } expr_stmt;
         struct {
-            char *ident;
-            Expr **args;
-        } call;
+            Ast *lvalue;
+            Ast *rvalue;
+        } assign_stmt;
+        struct {
+            DArray<Ast*> conditions;
+            DArray<Ast*> blocks;
+            Ast *else_block;
+        } if_stmt;
+        struct {
+            Ast *init;
+            Ast *condition;
+            Ast *iterator;
+            Ast *block;
+        } for_stmt;
+        struct {
+            Ast *condition;
+            Ast *block;
+        } while_stmt;
+        struct {
+            DArray<Ast*> statements;
+        } compound_stmt;
+        struct {
+            Ast *expr;
+        } return_stmt;
+        
+        struct {
+            Ast *ident;
+            Typespec *type;
+        } var_decl;
+        struct {
+            Ast *ident;
+            DArray<Param*> params;
+            DArray<Typespec*> return_types;
+            Ast *block;
+        } proc_decl;
+        struct {
+            Ast *ident;
+            DArray<AggregateField*> fields;
+        } struct_decl;
+        struct {
+            Ast *ident;
+            DArray<EnumField*> fields;
+        } enum_decl;
     };
 };
 
+
+/*
 enum ExprKind {
     Expr_None,
 
@@ -63,8 +137,9 @@ enum ExprKind {
     Expr_Binary,
     Expr_Ternary,
 };
+*/
 
-enum Typespec_Kind {
+enum TypespecKind {
     Typespec_None,
 
     Typespec_Ident,
@@ -78,98 +153,42 @@ enum Typespec_Kind {
 };
 
 struct Typespec {
-    int kind;
-    char *name;
+    TypespecKind kind;
+    String name;
 
-    Expr *expr;
+    union {
+        struct {
+            Ast *expr;
+        } array;
+    };
     Typespec *sub;
 };
 
 struct Param {
-    char *ident;
+    String ident;
     Typespec *type;
 };
 
 struct AggregateField {
+    Token ident;
     Typespec *type;
-    char *ident;
     // initializer?
 };
 
 struct EnumField {
-    char *ident;
+    Token ident;
     int64_t val;
 };
-enum StmtKind {
-    Stmt_None,
 
-    Stmt_Assign,
-    Stmt_Expr,
-    
-    Stmt_If,
-    Stmt_Do,
-    Stmt_While,
-    Stmt_Switch,
-    
-    Stmt_Block,
-};
+Ast *parse_expr_stream(char *str);
+Ast *parse_expr();
+Ast *parse_decl();
+Ast *parse_decl_stream(char *str);
+Ast *parse_stmt();
+Ast *parse_compound_stmt();
 
-struct Stmt {
-    int kind;
-
-    union {
-        Expr *expr;
-        
-        struct {
-            Expr *left;
-            Expr *right;
-        } assign;
-    };
-};
-
-struct StmtBlock {
-    Stmt **statements;
-};
-
-typedef struct Decl Decl;
-
-enum Decl_Kind {
-    Decl_None,
-
-    Decl_Var,
-    Decl_Proc,
-    Decl_Struct,
-    Decl_Enum,
-};
-
-struct Decl {
-    int kind;
-    char *ident;
-
-    union {
-        struct {
-            Typespec *type;
-        } var;
-        struct {
-            Param **params;
-            Typespec **return_types;
-            StmtBlock *block;
-        } proc;
-        struct {
-            AggregateField **fields;
-        } struct_decl;
-        struct {
-            EnumField **fields;
-        } enum_decl;
-    };
-};
-
-Expr *parse_expr_stream(char *str);
-Expr *parse_expr();
+Typespec *typespec_init(TypespecKind kind);
 Typespec *parse_type();
-Decl *parse_decl();
-Decl *parse_decl_stream(char *str);
-Stmt *parse_stmt();
-StmtBlock *parse_stmt_block();
 
+void ast_print(int t,Ast *root);
 #endif // PARSE_H
